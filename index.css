@@ -1,0 +1,15 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+.container {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+.display{
+    margin: 80px;
+    border-width: thick;
+    border-color: coral;
+}

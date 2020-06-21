@@ -1,10 +1,15 @@
 {
-  "name": "RemotePlay3DSLib",
+  "name": "RemotePlay3DS",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "main.js",
   "license": "MIT",
   "dependencies": {},
   "devDependencies": {
-    "@types/node": "^14.0.13"
+    "@types/node": "^12.12.6",
+    "electron": "^9.0.4",
+    "typescript": "^3.9.5"
+  },
+  "scripts": {
+    "start": "electron ."
   }
 }

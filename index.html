@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>3DS Remote Screen</title>
+    <!-- https://electronjs.org/docs/tutorial/security#csp-meta-tag -->
+    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
+    <link rel="stylesheet" type="text/css" href="index.css">
+    <script type="text/javascript" src="ntr-remote-play.js"></script>
+    <script >
+      const scale = 3;
+      function drawImage(context, imgSrc, isTop,canvasWidth, canvasHeight){
+        const imageWidth = 240;
+        const imageHeight = isTop?400:320;
+        const x = -canvasWidth/2;
+        const y = -canvasHeight/2;
+        const image = new Image(imageWidth,imageHeight);
+        image.src = imgSrc;
+        image.decode().then( () => {
+          context.drawImage(image, x,y,canvasWidth,canvasHeight);
+        });
+     }
+      function connectTo3ds(){
+        const ip_input = document.getElementById("ip_input");
+        const canvas_top = document.getElementById("display_top"); 
+        // const canvas_bottom = document.getElementById("display_bottom"); 
+        const display_top = canvas_top.getContext("2d"); 
+        // const display_bottom = canvas_bottom.getContext("2d"); 
+        display_top.translate(200*scale,120*scale);
+        // display_bottom.translate(160,120);
+        display_top.rotate(-90 * Math.PI / 180);
+        // display_bottom.rotate(-90 * Math.PI / 180);
+
+        const ip = ip_input.value;
+        NTRInitRemoteplay(ip).catch((error)=>console.error(error));
+        const socketHandle = NTRRemoteplayReadJPEG(( evt) => {
+            if(evt instanceof Error){
+                console.error(evt);
+                socketHandle();
+                return;
+            }
+            const {frameID, isTop, jpeg} = evt;
+            console.log(`Read: ${isTop} frameId ${frameID}`);
+            const imgSrc = 'data:image/jpeg;base64,' + jpeg.toString('base64');
+            if(isTop){
+              drawImage(display_top,imgSrc,true,240*scale,400*scale)
+            }else{
+              drawImage(display_bottom,imgSrc,false,240,320);
+            }
+        })
+      }
+    </script>
+  </head>
+  <body>
+    <div class="ip-input-container"> 
+      <label for="url">Enter the ip of 3ds: </label>
+      <input id="ip_input" value="192.168.137.212" type="text" minlength="7" maxlength="15" size="15" pattern="^((\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.){3}(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$">
+      <button class="favorite styled" type="button" onclick="connectTo3ds()">
+        Connect
+      </button>
+    </div>
+    <div class="container">
+    <canvas id='display_top' width="1200px" height="720px" class="display" >
+    </div>
+    <!-- <div class="container"> 
+    <canvas id='display_bottom' class="display"  >
+    </div> -->
+
+  </body>
+</html>
